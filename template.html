@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>{{CAL_NAME}}</title>
+<style>
+:root{--bg:#fffaf3;--card:#fff;--ink:#2b2b2b;--sub:#6b6b6b;--line:#eadfce;--acc:#f08a24;--acc2:#2a7de1;--g:#1a9e5c}
+@media (prefers-color-scheme:dark){:root{--bg:#1d1b18;--card:#27241f;--ink:#f2efe9;--sub:#b5ada1;--line:#3d3830}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic UI",sans-serif;line-height:1.7}
+main{max-width:640px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.45rem;margin:.2em 0 .1em}
+.lead{color:var(--sub);font-size:.92rem;margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 14px}
+.card h2{font-size:1.05rem;margin:0 0 8px}
+.btn{display:block;text-align:center;text-decoration:none;color:#fff;font-weight:700;padding:14px 12px;border-radius:12px;margin:8px 0;font-size:1.02rem}
+.ios{background:#111}.goo{background:var(--acc2)}.dl{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+ol{margin:6px 0 0;padding-left:1.3em;font-size:.92rem}
+.small{font-size:.85rem;color:var(--sub)}
+.url{display:flex;gap:8px;margin-top:8px}
+.url input{flex:1;min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-size:.8rem}
+.url button{padding:10px 14px;border:0;border-radius:10px;background:var(--acc);color:#fff;font-weight:700}
+h3{font-size:1rem;margin:18px 0 6px;padding-left:8px;border-left:4px solid var(--acc)}
+.ev{display:flex;gap:10px;padding:7px 2px;border-bottom:1px dashed var(--line);font-size:.93rem}
+.dt{flex:0 0 7.6em;color:var(--sub);white-space:nowrap}
+.tt{flex:1}
+.memo{display:block;font-size:.8rem;color:var(--sub)}
+footer{margin-top:22px;font-size:.8rem;color:var(--sub)}
+</style>
+</head>
+<body>
+<main>
+<h1>🏫 {{CAL_NAME}}</h1>
+<p class="lead">令和8年度 後期（10月〜3月）・全{{COUNT}}件。一度登録すると、予定が変わったときも自動で更新されます。</p>
+
+<div class="card">
+<h2>iPhone の方</h2>
+<a class="btn ios" href="{{WEBCAL}}">iPhoneのカレンダーに追加</a>
+<ol><li>上のボタンを押す</li><li>「照会」（または「登録」）を押す</li><li>そのまま「追加」で完了</li></ol>
+</div>
+
+<div class="card">
+<h2>Googleカレンダー（Android など）の方</h2>
+<a class="btn goo" href="{{GOOGLE}}" target="_blank" rel="noopener">Googleカレンダーに追加</a>
+<ol><li>上のボタンを押す（Googleにログインした状態で）</li><li>「カレンダーを追加しますか？」で「追加」</li></ol>
+<p class="small">スマホでうまく開かないときは、パソコンで Googleカレンダー →「他のカレンダー」の＋ →「URLで追加」に下のURLを貼ってください。追加した予定はスマホのアプリにも出ます。</p>
+<div class="url"><input id="u" readonly value="{{ICS_URL}}"><button onclick="navigator.clipboard.writeText(document.getElementById('u').value).then(()=>{this.textContent='コピー済'})">コピー</button></div>
+</div>
+
+<div class="card">
+<h2>ファイルで入れたい方</h2>
+<a class="btn dl" href="{{ICS}}" download>予定ファイルをダウンロード（.ics）</a>
+<p class="small">この方法だと、あとで予定が変わっても自動では更新されません。</p>
+</div>
+
+<div class="card">
+<h2>予定の一覧</h2>
+{{ROWS}}
+</div>
+
+<footer>{{NOTE}}<br>いらなくなったら、カレンダーの設定から「{{CAL_NAME}}」を削除すれば、まとめて消えます。<br>最終更新 {{UPDATED}}</footer>
+</main>
+</body>
+</html>
