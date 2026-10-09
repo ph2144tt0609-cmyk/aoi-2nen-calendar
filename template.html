@@ -4,15 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>{{CAL_NAME}}</title>
+<title>葵小 行事カレンダー</title>
 <style>
-:root{--bg:#fffaf3;--card:#fff;--ink:#2b2b2b;--sub:#6b6b6b;--line:#eadfce;--acc:#f08a24;--acc2:#2a7de1;--g:#1a9e5c}
+:root{--bg:#fffaf3;--card:#fff;--ink:#2b2b2b;--sub:#6b6b6b;--line:#eadfce;--acc:#f08a24;--acc2:#2a7de1}
 @media (prefers-color-scheme:dark){:root{--bg:#1d1b18;--card:#27241f;--ink:#f2efe9;--sub:#b5ada1;--line:#3d3830}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic UI",sans-serif;line-height:1.7}
 main{max-width:640px;margin:0 auto;padding:20px 16px 48px}
 h1{font-size:1.45rem;margin:.2em 0 .1em}
-.lead{color:var(--sub);font-size:.92rem;margin:0 0 18px}
+.lead{color:var(--sub);font-size:.92rem;margin:0 0 14px}
+.grades{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 16px}
+.grades button{padding:14px 0;font-size:1.15rem;font-weight:700;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);cursor:pointer}
+.grades button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.hint{text-align:center;color:var(--sub);padding:28px 0}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 14px}
 .card h2{font-size:1.05rem;margin:0 0 8px}
 .btn{display:block;text-align:center;text-decoration:none;color:#fff;font-weight:700;padding:14px 12px;border-radius:12px;margin:8px 0;font-size:1.02rem}
@@ -32,35 +36,49 @@ footer{margin-top:22px;font-size:.8rem;color:var(--sub)}
 </head>
 <body>
 <main>
-<h1>🏫 {{CAL_NAME}}</h1>
-<p class="lead">令和8年度 後期（10月〜3月）・全{{COUNT}}件。一度登録すると、予定が変わったときも自動で更新されます。</p>
+<h1>🏫 葵小 行事カレンダー</h1>
+<p class="lead">令和8年度 後期（10月〜3月）。お子さんの学年を選んで、スマホのカレンダーに追加してください。一度登録すると、予定が変わったときも自動で更新されます。兄弟がいる場合は学年ごとに追加できます。</p>
 
-<div class="card">
-<h2>iPhone の方</h2>
-<a class="btn ios" href="{{WEBCAL}}">iPhoneのカレンダーに追加</a>
-<ol><li>上のボタンを押す</li><li>「照会」（または「登録」）を押す</li><li>そのまま「追加」で完了</li></ol>
-</div>
+<div class="grades" id="grades"></div>
+<div id="out"><p class="hint">↑ 学年を選んでください</p></div>
 
-<div class="card">
-<h2>Googleカレンダー（Android など）の方</h2>
-<a class="btn goo" href="{{GOOGLE}}" target="_blank" rel="noopener">Googleカレンダーに追加</a>
+<footer>{{NOTE}}<br>いらなくなったら、カレンダーの設定から「葵小 ○年 行事予定」を削除すれば、まとめて消えます。<br>最終更新 {{UPDATED}}</footer>
+</main>
+<script>
+const DATA = {{DATA}};
+const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const gEl = document.getElementById('grades'), out = document.getElementById('out');
+for (let g = 1; g <= 6; g++) {
+  const b = document.createElement('button');
+  b.textContent = g + '年'; b.dataset.g = g; b.setAttribute('aria-pressed', 'false');
+  b.onclick = () => show(g, true);
+  gEl.appendChild(b);
+}
+function show(g, push) {
+  const d = DATA[g]; if (!d) return;
+  gEl.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.g == g)));
+  if (push) history.replaceState(null, '', '?g=' + g);
+  let rows = '', ym = '';
+  for (const r of d.rows) {
+    if (r.ym !== ym) { ym = r.ym; rows += `<h3>${esc(ym)}</h3>`; }
+    rows += `<div class="ev"><span class="dt">${esc(r.date)}</span><span class="tt">${esc(r.title)}${r.memo ? `<span class="memo">${esc(r.memo)}</span>` : ''}</span></div>`;
+  }
+  out.innerHTML = `
+<div class="card"><h2>${g}年生 ／ iPhone の方</h2>
+<a class="btn ios" href="${d.webcal}">iPhoneのカレンダーに追加</a>
+<ol><li>上のボタンを押す</li><li>「照会」（または「登録」）を押す</li><li>そのまま「追加」で完了</li></ol></div>
+<div class="card"><h2>${g}年生 ／ Googleカレンダー（Android など）の方</h2>
+<a class="btn goo" href="${d.google}" target="_blank" rel="noopener">Googleカレンダーに追加</a>
 <ol><li>上のボタンを押す（Googleにログインした状態で）</li><li>「カレンダーを追加しますか？」で「追加」</li></ol>
 <p class="small">スマホでうまく開かないときは、パソコンで Googleカレンダー →「他のカレンダー」の＋ →「URLで追加」に下のURLを貼ってください。追加した予定はスマホのアプリにも出ます。</p>
-<div class="url"><input id="u" readonly value="{{ICS_URL}}"><button onclick="navigator.clipboard.writeText(document.getElementById('u').value).then(()=>{this.textContent='コピー済'})">コピー</button></div>
-</div>
-
-<div class="card">
-<h2>ファイルで入れたい方</h2>
-<a class="btn dl" href="{{ICS}}" download>予定ファイルをダウンロード（.ics）</a>
-<p class="small">この方法だと、あとで予定が変わっても自動では更新されません。</p>
-</div>
-
-<div class="card">
-<h2>予定の一覧</h2>
-{{ROWS}}
-</div>
-
-<footer>{{NOTE}}<br>いらなくなったら、カレンダーの設定から「{{CAL_NAME}}」を削除すれば、まとめて消えます。<br>最終更新 {{UPDATED}}</footer>
-</main>
+<div class="url"><input readonly value="${d.icsUrl}"><button onclick="navigator.clipboard.writeText(this.previousElementSibling.value).then(()=>{this.textContent='コピー済'})">コピー</button></div></div>
+<div class="card"><h2>ファイルで入れたい方</h2>
+<a class="btn dl" href="${d.ics}" download>${g}年の予定ファイルをダウンロード（.ics）</a>
+<p class="small">この方法だと、あとで予定が変わっても自動では更新されません。</p></div>
+<div class="card"><h2>${g}年生の予定一覧（${d.rows.length}件）</h2>${rows}</div>`;
+}
+const q = new URLSearchParams(location.search).get('g');
+if (q) show(Number(q), false);
+</script>
 </body>
 </html>
